@@ -1,0 +1,241 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+  :root {
+    --ground: #0b0d11;
+    --panel: #12151b;
+    --panel-edge: #232833;
+    --fg: #e7e9ee;
+    --muted: #8a92a0;
+    --faint: #4a5160;
+    --accent: #9ec5ff;
+    --c1: #9ec5ff;  /* blue */
+    --c2: #f5c77e;  /* amber */
+    --c3: #b8e0a8;  /* sage */
+    --c4: #e5a5c8;  /* rose */
+    --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--ground); }
+  body {
+    background: var(--ground);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    padding-inline: 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+  .wrap { width: 100%; }
+
+  /* hero */
+  main { height: 100dvh; padding-block: 20px; display: flex; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .wrap, main { min-width: 0; }
+  .hero { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 22px; }
+
+  .term {
+    width: 100%; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 12px;
+    box-shadow: 0 30px 80px -30px rgba(40, 90, 180, .35), 0 0 0 1px rgba(0,0,0,.4);
+    overflow: hidden;
+    text-align: left;
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--panel-edge);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: #2c323d; }
+  .term-title { flex: 1; text-align: center; font-family: var(--mono); font-size: 12px; color: var(--muted); margin-right: 49px; }
+  .screen { flex: 1; min-height: 0; min-width: 0; padding: 18px; }
+  #canvas { height: 100%; }
+  #canvas svg { display: block; margin: 0 auto; width: auto; max-width: 100%; height: 100%; }
+  .status { white-space: nowrap;
+    display: flex; justify-content: space-between; gap: 12px;
+    font-family: var(--mono); font-size: 12px;
+    padding: 7px 14px;
+    background: #0e1116;
+    border-top: 1px solid var(--panel-edge);
+    color: var(--muted);
+  }
+  .status b { color: var(--fg); font-weight: 500; }
+
+  h1 {
+    font-size: clamp(26px, 3.6vw, 40px);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+  h1 em { font-style: normal; font-family: var(--mono); font-weight: 400; letter-spacing: -0.07em; color: var(--accent); }
+  .lede { color: var(--muted); font-size: 18px; max-width: 34em; margin: 10px auto 0; text-wrap: pretty; }
+  .lede code { font-family: var(--mono); font-size: .92em; color: var(--fg); }
+
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none; font-size: 14px; font-weight: 500;
+    padding: 10px 18px; border-radius: 8px;
+    border: 1px solid var(--panel-edge); color: var(--fg);
+  }
+  .btn { background: none; font-family: inherit; cursor: pointer; }
+  .btn:hover { border-color: #3a4252; }
+  .term.live { border-color: var(--accent); }
+  .btn.primary { background: var(--fg); color: var(--ground); border-color: var(--fg); }
+  .btn.primary:hover { background: #fff; }
+  .btn svg { width: 16px; height: 16px; }
+
+  @media (max-width: 640px) {
+    .hero { gap: 16px; }
+    .lede { font-size: 15px; }
+  }
+</style>
+
+<div class="wrap">
+  <main>
+    <section class="hero">
+      <div class="term" role="img" aria-label="A terminal window where dre builds a tree of labelled boxes, one keystroke at a time.">
+        <div class="term-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="term-title">dre plan.dre</span>
+        </div>
+        <div class="screen"><div id="canvas"></div></div>
+        <div class="status">
+          <span><b>plan.dre</b> <span id="dirty"></span></span>
+          <span id="hint" hidden>b add · s sibling · i edit · c colour · hjkl move · u undo</span>
+          <span id="count">0 boxes</span>
+        </div>
+      </div>
+
+      <div>
+        <h1>Diagrams at the speed of <em>your keyboard</em></h1>
+        <p class="lede">dre is a keyboard-driven diagram editor written in Rust. Draw trees of boxes in a few keystrokes, save them as plain <code>.dre</code> files, and run the same engine in your terminal or in any browser.</p>
+      </div>
+
+      <div class="actions">
+        <a class="btn primary" href="https://github.com/slickroot/dre">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          View on GitHub
+        </a>
+        <button class="btn" id="demo" type="button">Try it</button>
+      </div>
+    </section>
+  </main>
+
+</div>
+
+<script type="module">
+import init, { WebSession } from "./pkg/dre_web.js";
+
+// ---------- the demo script: real dre keystrokes ----------
+const ESC = "\x1b";
+const word = (w) => [...w];
+const SCRIPT = [
+  "b", ...word("design"), ESC,
+  "b", ...word("build"), ESC,
+  "b", ...word("ship"), ESC,
+  "b", ...word("web"), ESC,
+  "s", ...word("tui"), ESC,
+  "c", "k", "c", "h", "c", "r", "h", "c", "c", "h", "c",
+];
+
+const term = document.querySelector(".term");
+const canvas = document.getElementById("canvas");
+const countEl = document.getElementById("count");
+const dirtyEl = document.getElementById("dirty");
+const demoBtn = document.getElementById("demo");
+const hintEl = document.getElementById("hint");
+
+let session, base, timer, interactive = false;
+
+function draw(marker) {
+  // grow the canvas if the visitor's diagram outgrows the demo's
+  const [w, h] = session.extent();
+  const cols = Math.max(base.cols, w + 4), rows = Math.max(base.rows, h + 4);
+  canvas.innerHTML = session.svg(cols, rows, w, h);
+  const svg = canvas.firstElementChild;
+  svg.style.setProperty("--bg", "#12151b");
+  svg.style.setProperty("--ink", "#e7e9ee");
+  // every <rect> is a box, except the background
+  const n = Math.max((canvas.innerHTML.match(/<rect/g) || []).length - 1, 0);
+  countEl.textContent = n + (n === 1 ? " box" : " boxes");
+  dirtyEl.textContent = marker;
+}
+
+function fresh() { if (session) session.free(); session = new WebSession(); }
+
+function play() {
+  clearTimeout(timer);
+  fresh();
+  let i = 0, inInsert = false;
+  draw("");
+  (function tick() {
+    if (i >= SCRIPT.length) {
+      // hold the finished diagram, then start over
+      timer = setTimeout(play, 3500);
+      return;
+    }
+    const k = SCRIPT[i++];
+    session.press_key(k);
+    draw(i >= SCRIPT.length ? "written" : "[+]");
+    let hold;
+    if (inInsert) { hold = k === ESC ? 380 : 80 + Math.random() * 60; if (k === ESC) inInsert = false; }
+    else { hold = 260; if (k === "b" || k === "s") inInsert = true; }
+    timer = setTimeout(tick, hold);
+  })();
+}
+
+// ---------- try it: the terminal listens to the visitor ----------
+const KEYS = { Escape: ESC, Enter: "\r", Backspace: "\x7f" };
+function onKey(e) {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const key = KEYS[e.key] ?? (e.key.length === 1 ? e.key : null);
+  if (key === null) return;
+  e.preventDefault();
+  session.press_key(key);
+  draw("[+]");
+}
+
+function setInteractive(on) {
+  interactive = on;
+  clearTimeout(timer);
+  term.classList.toggle("live", on);
+  demoBtn.textContent = on ? "Watch the demo" : "Try it";
+  hintEl.hidden = !on;
+  if (on) {
+    fresh();
+    draw("");
+    addEventListener("keydown", onKey);
+  } else {
+    removeEventListener("keydown", onKey);
+    play();
+  }
+}
+demoBtn.addEventListener("click", () => setInteractive(!interactive));
+
+init().then(() => {
+  // Play the whole script once on a throwaway session so the canvas size is stable.
+  const probe = new WebSession();
+  SCRIPT.forEach((k) => probe.press_key(k));
+  const [w, h] = probe.extent();
+  probe.free();
+  base = { cols: w + 4, rows: h + 4 };
+
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) { fresh(); SCRIPT.forEach((k) => session.press_key(k)); draw("written"); }
+  else play();
+}).catch((e) => console.error("dre demo failed to start", e));
+</script>
