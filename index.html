@@ -113,7 +113,7 @@
 <div class="wrap">
   <main>
     <section class="hero">
-      <div class="term" role="img" aria-label="A terminal window where dre builds a tree of labelled boxes, one keystroke at a time.">
+      <div class="term" role="img" aria-label="A terminal window where dre plans a flow from plan to design to edit, then splits it into tui and web, one keystroke at a time.">
         <div class="term-bar">
           <span class="dot dot-close"></span><span class="dot dot-min"></span><span class="dot dot-max"></span>
           <span class="term-title">dre plan.dre</span>
@@ -149,13 +149,15 @@ import init, { WebSession } from "./pkg/dre_web.js";
 // ---------- the demo script: real dre keystrokes ----------
 const ESC = "\x1b";
 const word = (w) => [...w];
+// one colour per depth (c cycles the palette), and f fills the box
+const paint = (n) => [...Array(n).fill("c"), "f"];
 const SCRIPT = [
-  "b", ...word("design"), ESC,
-  "b", ...word("build"), ESC,
-  "b", ...word("ship"), ESC,
-  "b", ...word("web"), ESC,
-  "s", ...word("tui"), ESC,
-  "c", "k", "c", "h", "c", "r", "h", "c", "c", "h", "c",
+  "b", ...word("plan"), ESC, ...paint(1),
+  "b", ...word("design"), ESC, ...paint(2),
+  "b", ...word("edit"), ESC, ...paint(3),
+  "b", ...word("tui"), ESC,
+  "s", ...word("web"), ESC,
+  "C", "C", "C", "C", "F", // colour and fill both siblings at once
 ];
 
 const term = document.querySelector(".term");
