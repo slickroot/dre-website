@@ -162,9 +162,10 @@ const dirtyEl = document.getElementById("dirty");
 const demoBtn = document.getElementById("demo");
 const hintEl = document.getElementById("hint");
 
-let session, base, timer, interactive = false;
+let session, base, timer, interactive = false, marker = "";
 
-function draw(marker) {
+function draw(m) {
+  marker = m;
   // grow the canvas if the visitor's diagram outgrows the demo's
   const [w, h] = session.extent();
   const cols = Math.max(base.cols, w + 4), rows = Math.max(base.rows, h + 4);
@@ -175,10 +176,14 @@ function draw(marker) {
   // every <rect> is a box, except the background
   const n = Math.max((canvas.innerHTML.match(/<rect/g) || []).length - 1, 0);
   countEl.textContent = n + (n === 1 ? " box" : " boxes");
-  dirtyEl.textContent = marker;
+  dirtyEl.textContent = m;
 }
 
-function fresh() { if (session) session.free(); session = new WebSession(); }
+function fresh() {
+  if (session) session.free();
+  const next = new WebSession(() => { if (next === session) draw(marker); });
+  session = next;
+}
 
 function play() {
   clearTimeout(timer);
@@ -231,7 +236,7 @@ demoBtn.addEventListener("click", () => setInteractive(!interactive));
 
 init().then(() => {
   // Play the whole script once on a throwaway session so the canvas size is stable.
-  const probe = new WebSession();
+  const probe = new WebSession(() => {});
   SCRIPT.forEach((k) => probe.press_key(k));
   const [w, h] = probe.extent();
   probe.free();
