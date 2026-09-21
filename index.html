@@ -61,6 +61,9 @@
     border-bottom: 1px solid var(--panel-edge);
   }
   .dot { width: 11px; height: 11px; border-radius: 50%; background: #2c323d; }
+  .dot-close { background: #ff5f57; }
+  .dot-min { background: #febc2e; }
+  .dot-max { background: #28c840; }
   .term-title { flex: 1; text-align: center; font-family: var(--mono); font-size: 12px; color: var(--muted); margin-right: 49px; }
   .screen { flex: 1; min-height: 0; min-width: 0; padding: 18px; }
   #canvas { height: 100%; }
@@ -112,7 +115,7 @@
     <section class="hero">
       <div class="term" role="img" aria-label="A terminal window where dre builds a tree of labelled boxes, one keystroke at a time.">
         <div class="term-bar">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="dot dot-close"></span><span class="dot dot-min"></span><span class="dot dot-max"></span>
           <span class="term-title">dre plan.dre</span>
         </div>
         <div class="screen"><div id="canvas"></div></div>
