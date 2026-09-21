@@ -1,0 +1,44 @@
+name: Update dre release
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update pkg from latest dre release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          fail() { echo "dre update skipped: $1"; exit 0; }
+
+          latest=$(gh release view --repo slickroot/dre --json tagName -q .tagName) || fail "could not read latest release tag"
+          [ -n "$latest" ] || fail "empty release tag"
+          current=$(cat pkg/VERSION 2>/dev/null || true)
+          if [ "$latest" = "$current" ]; then
+            echo "already at $latest, nothing to do"
+            exit 0
+          fi
+
+          tmp=$(mktemp -d)
+          gh release download "$latest" --repo slickroot/dre --pattern dre-web.zip --dir "$tmp" || fail "download of dre-web.zip failed"
+          unzip -q -o "$tmp/dre-web.zip" dre_web.js dre_web_bg.wasm -d "$tmp/out" || fail "unzip failed"
+          [ -s "$tmp/out/dre_web.js" ] || fail "dre_web.js missing or empty"
+          [ -s "$tmp/out/dre_web_bg.wasm" ] || fail "dre_web_bg.wasm missing or empty"
+
+          cp "$tmp/out/dre_web.js" "$tmp/out/dre_web_bg.wasm" pkg/ || fail "copy into pkg failed"
+          echo "$latest" > pkg/VERSION
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pkg
+          git commit -m "Update dre to $latest" || fail "commit failed"
+          git push origin HEAD:main || echo "dre update: push failed"
