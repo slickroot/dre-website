@@ -1,0 +1,13 @@
+{
+  "name": "dre-website",
+  "private": true,
+  "packageManager": "pnpm@12.5.1",
+  "scripts": {
+    "dev": "node scripts/fetch-dre.mjs && cp index.html favicon.ico favicon.png apple-touch-icon.png CNAME dist/ && esbuild src/main.ts --bundle --outfile=dist/main.js --format=iife --sourcemap --watch=forever",
+    "build": "rm -rf dist && node scripts/fetch-dre.mjs && tsc --noEmit && esbuild src/main.ts --bundle --minify --outfile=dist/main.js --format=iife && cp index.html favicon.ico favicon.png apple-touch-icon.png CNAME dist/"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}
