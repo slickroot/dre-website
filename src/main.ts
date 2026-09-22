@@ -41,11 +41,18 @@ function draw(m: string) {
 // ---------- Input ----------
 const KEYS: Record<string, string> = { Escape: ESC, Enter: "\r", Backspace: "\x7f" };
 
+const COMMAND_HINT = hintEl.textContent;
+const INSERT_HINT = "Esc command mode · Enter new child";
+let inInsert = false;
+
 function onKey(e: KeyboardEvent) {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const key = KEYS[e.key] ?? (e.key.length === 1 ? e.key : null);
   if (key === null) return;
   e.preventDefault();
+  if (e.key === "b" || e.key === "s" || e.key === "i") inInsert = true;
+  else if (e.key === "Escape") inInsert = false;
+  hintEl.textContent = inInsert ? INSERT_HINT : COMMAND_HINT;
   session.press_key(key);
   draw("[+]");
 }
@@ -59,6 +66,8 @@ function setInteractive(on: boolean) {
   demoBtn.textContent = on ? "Watch the demo" : "Try it";
   hintEl.hidden = !on;
   if (on) {
+    inInsert = false;
+    hintEl.textContent = COMMAND_HINT;
     fresh();
     draw("");
     addEventListener("keydown", onKey);
