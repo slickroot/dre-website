@@ -35,8 +35,11 @@ function measureCell() {
 }
 
 function fitGrid() {
-  cols = Math.floor(screen.clientWidth / cellW);
-  rows = Math.floor(screen.clientHeight / cellH);
+  const style = getComputedStyle(screen);
+  const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+  const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+  cols = Math.floor((screen.clientWidth - padX) / cellW);
+  rows = Math.floor((screen.clientHeight - padY) / cellH);
 }
 
 function draw() {
