@@ -11,9 +11,12 @@ const demoBtn = document.getElementById("demo") as HTMLButtonElement;
 let WebSession: typeof DreWeb.WebSession;
 let session: DreWeb.WebSession;
 
+const DIAGRAM_NAME = "dre-diagram";
+
 function fresh() {
   if (session) session.free();
   session = new WebSession();
+  for (const k of ["n", ...DIAGRAM_NAME, "\r"]) session.press_key(k);
 }
 
 // ---------- Renderer ----------
