@@ -23,6 +23,9 @@ renders the editor and nothing else.
     8 × 16 px at 1:1. The probe avoids hard-coding dre's constants.
   - A `ResizeObserver` on `.screen` recomputes the grid and redraws. The
     session is untouched, so the diagram survives a resize.
+  - `.screen` has `padding: 12px` and `background: var(--editor)` (`#0a0b0d`,
+    dre's own background); the grid is fitted to the content box, so the
+    padding is subtracted from the measured size.
   - The SVG renders 1:1 with the panel: the `height: 100%` / `width: auto`
     scaling CSS on `#canvas svg` goes away.
   - No minimum size. When the panel is smaller than the demo diagram
@@ -36,6 +39,9 @@ renders the editor and nothing else.
   and counting `<rect>` is unreliable now that glows, tiles and the footer
   also emit rects. Specs 005 (insert-mode strip) and 006 (accurate counter)
   are superseded; 006 moves to `archive/`.
+- **The session is named `dre-diagram`.** `fresh()` presses `n`, the name and
+  Enter on every new session, so dre's footer shows the filename instead of
+  `[no name — press n to name it]`, in the demo and in "Try it".
 - **`term-bar` stays** (spec 002's window chrome above the canvas), as do the
   border and the "Try it" / "Watch the demo" button.
 - **Release source unchanged.** `scripts/fetch-dre.mjs` still fetches
