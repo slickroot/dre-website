@@ -68,15 +68,6 @@
   .screen { flex: 1; min-height: 0; min-width: 0; padding: 18px; }
   #canvas { height: 100%; }
   #canvas svg { display: block; margin: 0 auto; width: auto; max-width: 100%; height: 100%; }
-  .status { white-space: nowrap;
-    display: flex; justify-content: space-between; gap: 12px;
-    font-family: var(--mono); font-size: 12px;
-    padding: 7px 14px;
-    background: #0e1116;
-    border-top: 1px solid var(--panel-edge);
-    color: var(--muted);
-  }
-  .status b { color: var(--fg); font-weight: 500; }
 
   h1 {
     font-size: clamp(26px, 3.6vw, 40px);
@@ -119,11 +110,6 @@
           <span class="term-title">dre plan.dre</span>
         </div>
         <div class="screen"><div id="canvas"></div></div>
-        <div class="status">
-          <span><b>plan.dre</b> <span id="dirty"></span></span>
-          <span id="hint" hidden>b add · s sibling · i edit · c colour · hjkl move · u undo</span>
-          <span id="count">0 boxes</span>
-        </div>
       </div>
 
       <div>
