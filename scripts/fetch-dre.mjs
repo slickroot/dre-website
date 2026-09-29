@@ -4,14 +4,12 @@ import { join } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
+import { DIST_DIR, RUNTIME_FILES, TYPES_DIR, TYPE_FILES } from "./dre-files.mjs";
+
 const execFileAsync = promisify(execFile);
 
 const REPO = "slickroot/dre";
 const ZIP_ASSET_NAME = "dre-web.zip";
-const DIST_DIR = "dist";
-const TYPES_DIR = ".dre-web-types";
-const RUNTIME_FILES = ["dre_web.js", "dre_web_bg.wasm"];
-const TYPE_FILES = ["dre_web.d.ts", "dre_web_bg.wasm.d.ts"];
 
 export function pickZipAssetUrl(release) {
   const asset = release.assets.find((a) => a.name === ZIP_ASSET_NAME);

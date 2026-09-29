@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/fetch-dre.mjs && cp index.html favicon.ico favicon.png apple-touch-icon.png dist/ && esbuild src/main.ts --bundle --outfile=dist/main.js --format=iife --sourcemap --watch=forever",
+    "dev:local": "node scripts/local-dre.mjs && cp index.html favicon.ico favicon.png apple-touch-icon.png dist/ && esbuild src/main.ts --bundle --outfile=dist/main.js --format=iife --sourcemap --watch=forever",
     "build": "rm -rf dist && node scripts/fetch-dre.mjs && tsc --noEmit && esbuild src/main.ts --bundle --minify --outfile=dist/main.js --format=iife && cp index.html favicon.ico favicon.png apple-touch-icon.png dist/"
   },
   "devDependencies": {
