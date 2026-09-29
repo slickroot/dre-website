@@ -2,10 +2,8 @@ import type * as DreWeb from "../.dre-web-types/dre_web";
 
 const ESC = "\x1b";
 
-const COLS = 62;
-const ROWS = 17;
-
 const term = document.querySelector(".term") as HTMLElement;
+const screen = document.querySelector(".screen") as HTMLElement;
 const canvas = document.getElementById("canvas") as HTMLElement;
 const demoBtn = document.getElementById("demo") as HTMLButtonElement;
 
@@ -19,8 +17,30 @@ function fresh() {
 }
 
 // ---------- Renderer ----------
+const PROBE_COLS = 10;
+const PROBE_ROWS = 10;
+let cols: number;
+let rows: number;
+let cellW: number;
+let cellH: number;
+
+function measureCell() {
+  const probe = new WebSession();
+  canvas.innerHTML = probe.svg(PROBE_COLS, PROBE_ROWS);
+  probe.free();
+  const [, , viewW, viewH] = (canvas.firstElementChild as SVGElement).getAttribute("viewBox")!.split(" ").map(Number);
+  canvas.innerHTML = "";
+  cellW = viewW / PROBE_COLS;
+  cellH = viewH / PROBE_ROWS;
+}
+
+function fitGrid() {
+  cols = Math.floor(screen.clientWidth / cellW);
+  rows = Math.floor(screen.clientHeight / cellH);
+}
+
 function draw() {
-  canvas.innerHTML = session.svg(COLS, ROWS);
+  canvas.innerHTML = session.svg(cols, rows);
   const svg = canvas.firstElementChild as SVGElement;
   svg.style.setProperty("--bg", "#12151b");
   svg.style.setProperty("--ink", "#e7e9ee");
@@ -101,6 +121,12 @@ const dreWebPath = "./dre_web.js";
   WebSession = dreWeb.WebSession;
   return dreWeb.default();
 }).then(() => {
+  measureCell();
+  fitGrid();
+  new ResizeObserver(() => {
+    fitGrid();
+    if (session) draw();
+  }).observe(screen);
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduce) { fresh(); SCRIPT.forEach((k) => session.press_key(k)); draw(); }
   else play();
