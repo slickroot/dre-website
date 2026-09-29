@@ -2,59 +2,40 @@ import type * as DreWeb from "../.dre-web-types/dre_web";
 
 const ESC = "\x1b";
 
+const COLS = 62;
+const ROWS = 17;
+
 const term = document.querySelector(".term") as HTMLElement;
 const canvas = document.getElementById("canvas") as HTMLElement;
-const countEl = document.getElementById("count") as HTMLElement;
-const dirtyEl = document.getElementById("dirty") as HTMLElement;
 const demoBtn = document.getElementById("demo") as HTMLButtonElement;
-const hintEl = document.getElementById("hint") as HTMLElement;
 
 // ---------- Session ----------
 let WebSession: typeof DreWeb.WebSession;
 let session: DreWeb.WebSession;
-let marker = "";
 
 function fresh() {
   if (session) session.free();
-  const next = new WebSession(() => { if (next === session) draw(marker); });
-  session = next;
+  session = new WebSession();
 }
 
 // ---------- Renderer ----------
-let base: { cols: number; rows: number };
-
-function draw(m: string) {
-  marker = m;
-  // grow the canvas if the visitor's diagram outgrows the demo's
-  const [w, h] = session.extent();
-  const cols = Math.max(base.cols, w + 4), rows = Math.max(base.rows, h + 4);
-  canvas.innerHTML = session.svg(cols, rows, w, h);
+function draw() {
+  canvas.innerHTML = session.svg(COLS, ROWS);
   const svg = canvas.firstElementChild as SVGElement;
   svg.style.setProperty("--bg", "#12151b");
   svg.style.setProperty("--ink", "#e7e9ee");
-  // every <rect> is a box, except the background
-  const n = Math.max((canvas.innerHTML.match(/<rect/g) || []).length - 1, 0);
-  countEl.textContent = n + (n === 1 ? " box" : " boxes");
-  dirtyEl.textContent = m;
 }
 
 // ---------- Input ----------
 const KEYS: Record<string, string> = { Escape: ESC, Enter: "\r", Backspace: "\x7f" };
-
-const COMMAND_HINT = hintEl.textContent;
-const INSERT_HINT = "Esc command mode · Enter new child";
-let inInsert = false;
 
 function onKey(e: KeyboardEvent) {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const key = KEYS[e.key] ?? (e.key.length === 1 ? e.key : null);
   if (key === null) return;
   e.preventDefault();
-  if (e.key === "b" || e.key === "s" || e.key === "i") inInsert = true;
-  else if (e.key === "Escape") inInsert = false;
-  hintEl.textContent = inInsert ? INSERT_HINT : COMMAND_HINT;
   session.press_key(key);
-  draw("[+]");
+  draw();
 }
 
 let interactive = false;
@@ -64,12 +45,9 @@ function setInteractive(on: boolean) {
   clearTimeout(timer);
   term.classList.toggle("live", on);
   demoBtn.textContent = on ? "Watch the demo" : "Try it";
-  hintEl.hidden = !on;
   if (on) {
-    inInsert = false;
-    hintEl.textContent = COMMAND_HINT;
     fresh();
-    draw("");
+    draw();
     addEventListener("keydown", onKey);
   } else {
     removeEventListener("keydown", onKey);
@@ -97,7 +75,7 @@ function play() {
   clearTimeout(timer);
   fresh();
   let i = 0, inInsert = false;
-  draw("");
+  draw();
   (function tick() {
     if (i >= SCRIPT.length) {
       // hold the finished diagram, then start over
@@ -106,7 +84,7 @@ function play() {
     }
     const k = SCRIPT[i++];
     session.press_key(k);
-    draw(i >= SCRIPT.length ? "written" : "[+]");
+    draw();
     let hold;
     if (inInsert) { hold = k === ESC ? 380 : 80 + Math.random() * 60; if (k === ESC) inInsert = false; }
     else { hold = 260; if (k === "b" || k === "s") inInsert = true; }
@@ -123,14 +101,7 @@ const dreWebPath = "./dre_web.js";
   WebSession = dreWeb.WebSession;
   return dreWeb.default();
 }).then(() => {
-  // Play the whole script once on a throwaway session so the canvas size is stable.
-  const probe = new WebSession(() => {});
-  SCRIPT.forEach((k) => probe.press_key(k));
-  const [w, h] = probe.extent();
-  probe.free();
-  base = { cols: w + 4, rows: h + 4 };
-
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduce) { fresh(); SCRIPT.forEach((k) => session.press_key(k)); draw("written"); }
+  if (reduce) { fresh(); SCRIPT.forEach((k) => session.press_key(k)); draw(); }
   else play();
 }).catch((e) => console.error("dre demo failed to start", e));
