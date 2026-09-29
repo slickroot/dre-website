@@ -23,7 +23,7 @@ renders the editor and nothing else.
     8 × 16 px at 1:1. The probe avoids hard-coding dre's constants.
   - A `ResizeObserver` on `.screen` recomputes the grid and redraws. The
     session is untouched, so the diagram survives a resize.
-  - `.screen` has `padding: 12px` and `background: var(--editor)` (`#0a0b0d`,
+  - `.screen` has `padding: 6px` and `background: var(--editor)` (`#0a0b0d`,
     dre's own background); the grid is fitted to the content box, so the
     padding is subtracted from the measured size.
   - The SVG renders 1:1 with the panel: the `height: 100%` / `width: auto`
